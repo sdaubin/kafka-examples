@@ -25,7 +25,8 @@ public class WeatherAgentServiceImpl implements WeatherAgentService {
         executor.scheduleAtFixedRate(this::produce, 10, 10, TimeUnit.SECONDS);
     }
 
-    private void produce() {
+    @Override
+    public void produce() {
         WeatherInfo info = new WeatherInfo("Baton Rouge", new BigDecimal(0.5), new BigDecimal(0.6), 0.99f);
         kafkaTemplate.send("extreme-weather", Integer.toString(info.hashCode()), info);
     }

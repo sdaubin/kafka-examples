@@ -9,9 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.math.BigDecimal;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
 @EnableScheduling
@@ -20,7 +23,16 @@ public class Application {
     @Autowired
     private WeatherLogService weatherLogService;
     @Autowired
-    private WeatherAgentService producer;
+    KafkaTemplate<String, WeatherInfo> kafkaTemplate;
+
+    public Application() {
+        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(this::produce, 10, 10, TimeUnit.SECONDS);
+    }
+
+    private void produce() {
+        WeatherInfo info = new WeatherInfo("Baton Rouge", new BigDecimal(0.5), new BigDecimal(0.6), 0.99f);
+        kafkaTemplate.send("extreme-weather", Integer.toString(info.hashCode()), info);
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);

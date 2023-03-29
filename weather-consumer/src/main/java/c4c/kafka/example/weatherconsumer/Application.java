@@ -3,6 +3,8 @@ package c4c.kafka.example.weatherconsumer;
 import c4c.kafka.example.weatherconsumer.dto.WeatherInfo;
 import c4c.kafka.example.weatherconsumer.dto.WeatherLog;
 import c4c.kafka.example.weatherconsumer.service.api.WeatherLogService;
+import c4c.kafka.example.weatherproducer.WeatherAgentService;
+import c4c.kafka.example.weatherproducer.WeatherAgentServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,6 +19,8 @@ public class Application {
 
     @Autowired
     private WeatherLogService weatherLogService;
+    @Autowired
+    private WeatherAgentService producer;
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);

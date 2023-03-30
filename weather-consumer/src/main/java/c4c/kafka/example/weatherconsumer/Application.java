@@ -3,18 +3,13 @@ package c4c.kafka.example.weatherconsumer;
 import c4c.kafka.example.weatherconsumer.dto.WeatherInfo;
 import c4c.kafka.example.weatherconsumer.dto.WeatherLog;
 import c4c.kafka.example.weatherconsumer.service.api.WeatherLogService;
-import c4c.kafka.example.weatherproducer.WeatherAgentService;
-import c4c.kafka.example.weatherproducer.WeatherAgentServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.math.BigDecimal;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
 @EnableScheduling
@@ -22,17 +17,7 @@ public class Application {
 
     @Autowired
     private WeatherLogService weatherLogService;
-    @Autowired
-    KafkaTemplate<String, WeatherInfo> kafkaTemplate;
 
-    public Application() {
-        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(this::produce, 10, 10, TimeUnit.SECONDS);
-    }
-
-    private void produce() {
-        WeatherInfo info = new WeatherInfo("Baton Rouge", new BigDecimal(0.5), new BigDecimal(0.6), 0.99f);
-        kafkaTemplate.send("extreme-weather", Integer.toString(info.hashCode()), info);
-    }
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
@@ -49,7 +34,7 @@ public class Application {
         }
     }
 
-    @KafkaListener(topics = "extreme-weather-filter", groupId = "group-1", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "extreme-weather", groupId = "group-1", containerFactory = "kafkaListenerContainerFactory")
     public void listenExtremeWeather(WeatherInfo record) {
         System.out.println("Received extreme weather: " + record.getTemp());
         try {

@@ -15,24 +15,9 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class WeatherLogServiceImpl implements WeatherLogService {
-    //private final WeatherRepository repository;
-    private final KafkaTemplate<String, WeatherInfo> kafkaTemplate;
-    private final Random rand = new Random();
 
     @Autowired
-    WeatherLogServiceImpl(KafkaTemplate<String, WeatherInfo> kafkaTemplate) {
-        this.kafkaTemplate = kafkaTemplate;
-        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(this::produce, 10, 10, TimeUnit.SECONDS);
-    }
-
-
-    private void produce() {
-        try {
-            WeatherInfo info = new WeatherInfo("Baton Rouge", new BigDecimal(0.5), new BigDecimal(0.6), rand.nextFloat());
-            kafkaTemplate.send("extreme-weather", Integer.toString(info.hashCode()), info);
-        } catch (Throwable ex) {
-            ex.printStackTrace();
-        }
+    WeatherLogServiceImpl() {
     }
 
 

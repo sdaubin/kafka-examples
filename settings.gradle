@@ -1,0 +1,4 @@
+rootProject.name = 'kafka-example'
+
+include "weather-consumer"
+include "weather-agents-simulator"

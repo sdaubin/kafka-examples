@@ -31,9 +31,7 @@ public class KafkaProducerConfig {
         configProps.put(
                 ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
                 JsonSerializer.class);
-        JsonSerializer<WeatherInfo> jsonSerializer = new JsonSerializer<>();
-        jsonSerializer.setAddTypeInfo(false);
-        return new DefaultKafkaProducerFactory<>(configProps, new StringSerializer(), jsonSerializer);
+        return new DefaultKafkaProducerFactory<>(configProps);
     }
 
     @Bean

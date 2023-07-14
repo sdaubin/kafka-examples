@@ -8,6 +8,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 
 import java.math.BigDecimal;
 
@@ -46,6 +47,16 @@ public class Application {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+        test();
+    }
+
+    @WithSpan
+    static synchronized void test() {
+        try {
+            Thread.sleep(500);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
         }
     }
 }

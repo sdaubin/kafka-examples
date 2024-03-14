@@ -1,0 +1,81 @@
+version: "3.6"
+
+services:
+  consumer:
+    build:
+      dockerfile: Dockerfile
+    working_dir: /app/weather-consumer
+    command: java -Dotel.java.global-autoconfigure.enabled=true -javaagent:$AGENT_JAR -Dnewrelic.config.app_name=KafkaConsumer-$USER -Dotel.service.name=KafkaConsumer-$USER -Dspring.sql.init.mode=always -Dspring.datasource.username=postgres -Dspring.datasource.url=jdbc:postgresql://postgres:5432/weather -Dspring.datasource.password=example -Dspring.kafka.bootstrapAddress=kafka:9092 -Dkafka.bootstrapAddress=kafka:9092 -Dspring.kafka.bootstrap-servers=kafka:9092 -jar build/libs/weather-consumer-1.0-SNAPSHOT.jar
+    volumes:
+      - ./build:/build
+    environment:
+#      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005
+      - NEW_RELIC_LICENSE_KEY
+      - NEW_RELIC_HOST
+      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+      - OTEL_EXPORTER_OTLP_HEADERS
+      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - OTEL_EXPORTER_OTLP_COMPRESSION
+      - OTEL_EXPORTER_OTLP_PROTOCOL
+      - OTEL_LOGS_EXPORTER
+      - OTEL_SEMCONV_STABILITY_OPT_IN
+      - OTEL_SPAN_ATTRIBUTE_VALUE_LENGTH_LIMIT
+      - OTEL_JAVAAGENT_DEBUG
+    depends_on:
+      - kafka
+      - postgres
+    ports:
+      - "5005:5005"
+
+  producer:
+    build:
+      dockerfile: Dockerfile
+    working_dir: /app/weather-agents-simulator
+    command: java -Dnewrelic.config.app_name=KafkaProducer-$USER -Dotel.service.name=KafkaProducer-$USER -javaagent:$AGENT_JAR -Dspring.sql.init.mode=always -Dspring.datasource.username=postgres -Dspring.datasource.url=jdbc:postgresql://postgres:5432/weather -Dspring.datasource.password=example -Dspring.kafka.bootstrapAddress=kafka:9092 -Dkafka.bootstrapAddress=kafka:9092 -Dspring.kafka.bootstrap-servers=kafka:9092 -jar build/libs/weather-agents-simulator-1.0-SNAPSHOT.jar
+    volumes:
+      - ./build:/build
+    environment:
+      - NEW_RELIC_LICENSE_KEY
+      - NEW_RELIC_HOST
+      - NEW_RELIC_SYNC_STARTUP=true
+      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+      - OTEL_EXPORTER_OTLP_HEADERS
+      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - OTEL_EXPORTER_OTLP_COMPRESSION
+      - OTEL_EXPORTER_OTLP_PROTOCOL
+      - OTEL_LOGS_EXPORTER
+      - OTEL_SEMCONV_STABILITY_OPT_IN
+      - OTEL_SPAN_ATTRIBUTE_VALUE_LENGTH_LIMIT
+    depends_on:
+      - kafka
+
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: weather
+    volumes:
+      - ./schema/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "22181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    container_name: kafka
+    ports:
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1

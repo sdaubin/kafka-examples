@@ -1,6 +1,7 @@
 package c4c.kafka.example.weatherproducer;
 
 import c4c.kafka.example.weatherconsumer.dto.WeatherInfo;
+import com.newrelic.api.agent.Trace;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class WeatherAgentServiceImpl implements WeatherAgentService {
     }
 
     @Override
+    @Trace(dispatcher = true)
     public void produce() {
         WeatherInfo info = new WeatherInfo("Baton Rouge", new BigDecimal(0.5), new BigDecimal(0.6), 0.99f);
         kafkaTemplate.send("extreme-weather", Integer.toString(info.hashCode()), info);

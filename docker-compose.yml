@@ -5,13 +5,14 @@ services:
     build:
       dockerfile: Dockerfile
     working_dir: /app/weather-consumer
-    command: java -Dotel.java.global-autoconfigure.enabled=true -javaagent:$AGENT_JAR -Dnewrelic.config.app_name=KafkaConsumer-$USER -Dotel.service.name=KafkaConsumer-$USER -Dspring.sql.init.mode=always -Dspring.datasource.username=postgres -Dspring.datasource.url=jdbc:postgresql://postgres:5432/weather -Dspring.datasource.password=example -Dspring.kafka.bootstrapAddress=kafka:9092 -Dkafka.bootstrapAddress=kafka:9092 -Dspring.kafka.bootstrap-servers=kafka:9092 -jar build/libs/weather-consumer-1.0-SNAPSHOT.jar
+    command: java -javaagent:$AGENT_JAR -Dnewrelic.config.app_name=KafkaConsumer-$USER -Dotel.service.name=KafkaConsumer-$USER -Dspring.sql.init.mode=always -Dspring.datasource.username=postgres -Dspring.datasource.url=jdbc:postgresql://postgres:5432/weather -Dspring.datasource.password=example -Dspring.kafka.bootstrapAddress=kafka:9092 -Dkafka.bootstrapAddress=kafka:9092 -Dspring.kafka.bootstrap-servers=kafka:9092 -jar build/libs/weather-consumer-1.0-SNAPSHOT.jar
     volumes:
       - ./build:/build
     environment:
 #      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005
       - NEW_RELIC_LICENSE_KEY
       - NEW_RELIC_HOST
+      - OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED=true
       - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
       - OTEL_EXPORTER_OTLP_HEADERS
       - OTEL_EXPORTER_OTLP_ENDPOINT

@@ -14,9 +14,9 @@ Use java 11
 
 ## Run with NR agent
 
-    wget https://repo1.maven.org/maven2/com/newrelic/agent/java/newrelic-agent/8.4.0/newrelic-agent-8.4.0.jar -O build/newrelic.jar
+    wget https://repo1.maven.org/maven2/com/newrelic/agent/java/newrelic-agent/8.10.0/newrelic-agent-8.10.0.jar -O build/newrelic.jar
 
-    NEW_RELIC_LICENSE_KEY=<api-key> docker-compose up kafka producer consumer
+    NEW_RELIC_LICENSE_KEY=<api-key> NEW_RELIC_HOST=collector.newrelic.com docker-compose up kafka producer consumer
 
 ## Run with OTel agent
 
